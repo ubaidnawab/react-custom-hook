@@ -1,5 +1,5 @@
 export type Note = {
-  text: string;
+  title: string;
   id: number;
-  starred: boolean;
+  completed: boolean;
 };

@@ -1,51 +1,34 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import './App.css'
 import Notes from './components/Notes'
 import { Note } from './types';
 import { AppContext } from './AppContext';
 import useWindowSize from './hook/useWindowSize';
+import useFetch from './hook/useFetch';
 
 function App() {
-  const [notes, setNotes] = useState<Note[]>([
-    {
-      text: "note 1",
-      id: 1,
-      starred: true,
-    },
-    {
-      text: "note 2",
-      id: 2,
-      starred: false,
-    },
-    {
-      text: "note 3",
-      id: 3,
-      starred: false,
-    },
-    {
-      text: "note 4",
-      id: 4,
-      starred: false,
-    },
-    {
-      text: "note 5",
-      id: 5,
-      starred: false,
-    },
-    {
-      text: "note 6",
-      id: 6,
-      starred: false,
-    },
-  ]);
+  const [notes, setNotes] = useState<Note[]>([]);
 
+  const { data, isLoading } = useFetch("https://jsonplaceholder.typicode.com/posts");
+
+  useEffect(() => {
+    if (data.length > 0) {
+      setNotes(data.map((note: Note) => {
+        return {
+          title: note.title,
+          id: note.id,
+          completed: false
+        }
+      }))
+    }
+  }, [data])
   const toggleStarNote = (noteId: number) => {
     setNotes(
       notes.map((noteItem) => {
         if (noteItem.id === noteId) {
           return {
             ...noteItem,
-            starred: !noteItem.starred
+            completed: !noteItem.completed
           }
         }
         return noteItem;
@@ -68,7 +51,7 @@ function App() {
       toggleStarNote,
       deleteNote
     }}>
-      {size.width <= 400 ? <h1>device is not compatible</h1> : <Notes />}
+      {isLoading ? <h1>loading....</h1> : <Notes />}
     </AppContext.Provider>
   )
 }
